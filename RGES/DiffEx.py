@@ -40,7 +40,7 @@ class DiffEx:
         """
         up_gene_rows = self.data.ix[self.data['log2FoldChange']>0]
         ug_rows_sorted = up_gene_rows.sort_values(by=['log2FoldChange'])
-        return ug_rows_sorted['gene_id']  #return id because some symbols missing
+        return ug_rows_sorted[['gene_id', 'log2FoldChange']]  #return id because some symbols missing
 
     def get_down_genes(self):
         """
@@ -54,6 +54,10 @@ class DiffEx:
         return dg_rows_sorted[['gene_id', 'log2FoldChange']]  #return id because some symbols missing
 
 if __name__ == "__main__":
+    DIR = "/scratch/alexw/l1k/"
+
     de = DiffEx("testing/res.df.txt")
-    #print(de.get_up_genes()[:10])
-    print(de.get_down_genes()[:10])
+    up = de.get_up_genes()
+    dn = de.get_down_genes()
+    up.to_csv(DIR+"DiffEx_unit_upreg.tsv", sep='\t')
+    dn.to_csv(DIR+"DiffEx_unit_dnreg.tsv", sep='\t')
