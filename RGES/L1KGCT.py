@@ -23,14 +23,8 @@ class L1KGCT:
 
             returns: None
         """
-        self.perturbagen_id = None
-        self.compound = None
-        self.treatment = None
-        self.concentration = None
-        self.cell_line = None
-        self.time = None
-        self.factor = None
-        self.data = pd.Series()
+        self.metadata = {}
+        self.data = None
 
         self.path = path
         self.normalized = normalized
@@ -46,7 +40,18 @@ class L1KGCT:
     def load(self):
         """
         Reads data from self.path and populates self.data and metadata fields
+
+            returns: None
         """
+        self.data = pd.read_csv(self.path, sep='\t', skiprows=[0,1,3,4,5,6,7,8,9])
+        for i, line in enumerate(open(self.path)):
+            if i in [0,1]:
+                continue
+            if i > 9:
+                break
+            lv = line.strip('\n').split('\t')
+            self.metadata[lv[0]] = lv[-1]
+            
 
     """
     Normalize Data
@@ -60,10 +65,22 @@ class L1KGCT:
 
             returns: None
         """
+        pname = self.metadata['id']
+        raw = self.data[pname]
+        self.data[pname+'_zscore'] = (raw - raw.mean())/raw.std(ddof=0)
+        self.data[pname+'_zscore_norm'] = self.data[pname+'_zscore']
+        self.data.loc[self.data[pname+'_zscore_norm'] > 3, pname+'_zscore_norm'] = 3
+        self.data.loc[self.data[pname+'_zscore_norm'] < -3, pname+'_zscore_norm'] = -3
+        self.data[pname+'_zscore_norm_pos'] = self.data[pname+'_zscore_norm']+3
 
     """
     Accession
     """
 
 if __name__ == "__main__":
-    print("L1KGCT.py")
+    DIR = "/scratch/alexw/l1k/"    
+
+    l = L1KGCT("testing/LINCSCP_1.gct", normalized=True)
+    print(l.metadata['perturbagenID'] == 'BRD-A03427350')
+    print(l.metadata['time'] == '24h')
+    l.data.to_csv(DIR+"l1k_unit_zscore.tsv", sep='\t')
