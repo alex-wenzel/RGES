@@ -76,6 +76,13 @@ class DiffEx:
 
         return up_prof, dn_prof
 
+    """
+    Operators
+    """
+
+    def __len__(self):
+        return len(self.data.index)
+
 if __name__ == "__main__":
     DIR = "/scratch/alexw/l1k/"
 
