@@ -23,6 +23,7 @@ class L1KGCT:
 
             returns: None
         """
+        self.name = ""
         self.metadata = {}
         self.data = None
 
@@ -44,6 +45,7 @@ class L1KGCT:
             returns: None
         """
         self.data = pd.read_csv(self.path, sep='\t', skiprows=[0,1,3,4,5,6,7,8,9])
+        self.data['ID_geneid'] = self.data['ID_geneid'].astype(str)
         for i, line in enumerate(open(self.path)):
             if i in [0,1]:
                 continue
@@ -51,7 +53,9 @@ class L1KGCT:
                 break
             lv = line.strip('\n').split('\t')
             self.metadata[lv[0]] = lv[-1]
-            
+        self.name = self.metadata['id']
+        self.data = self.data.sort_values(by=self.name)
+        self.data['drug_rank'] = range(1, len(self.data)+1) 
 
     """
     Normalize Data
@@ -81,6 +85,4 @@ if __name__ == "__main__":
     DIR = "/scratch/alexw/l1k/"    
 
     l = L1KGCT("testing/LINCSCP_1.gct", normalized=True)
-    print(l.metadata['perturbagenID'] == 'BRD-A03427350')
-    print(l.metadata['time'] == '24h')
-    l.data.to_csv(DIR+"l1k_unit_zscore.tsv", sep='\t')
+    l.data.to_csv(DIR+"l1k_unit_zscore.tsv", sep='\t', index=False, na_rep="NA")
