@@ -13,7 +13,7 @@ table is required to have the following headers:
 
 import pandas as pd
 
-from L1KGCT import L1KGCT
+from RGES.RGES.L1KGCT import L1KGCT
 
 class DiffEx:
     """
@@ -56,23 +56,25 @@ class DiffEx:
         dg_rows_sorted = dn_gene_rows.sort_values(by=['log2FoldChange'], ascending=False)
         return dg_rows_sorted[['entrezgene', 'log2FoldChange']]  #return id because some symbols missing
 
-    def get_profile_order(self, l1k_prof):
+    def get_profile_order(self, l1k_prof, signame):
         """
         Uses an L1000 drug profile to re-order the upregulated and downregulated genes
 
-            l1k_prof (L1KGCT): A drug signature
+            l1k_prof (pd.DataFrame): Columns ID_geneid and profile data
+            signame (str): Name of the signature in l1k_prof
 
             returns ((pd.DataFrame, pd.DataFrame)): 
         """
-        cols2save = ['entrezgene', 'log2FoldChange', 'Name_GeneSymbol', l1k_prof.name, 'drug_rank']
+        cols2save = ['entrezgene', 'log2FoldChange', 'Name_GeneSymbol', 
+                        signame, signame+'_drug_rank']
 
         up = self.get_up_genes()
         dn = self.get_down_genes()
-        up_prof = pd.merge(up, l1k_prof.data, how='left', left_on='entrezgene', right_on='ID_geneid')
-        up_prof = up_prof[up_prof['drug_rank'].notnull()][cols2save]
+        up_prof = pd.merge(up, l1k_prof, how='left', left_on='entrezgene', right_on='ID_geneid')
+        up_prof = up_prof[up_prof[signame+'_drug_rank'].notnull()][cols2save]
 
-        dn_prof = pd.merge(dn, l1k_prof.data, how='left', left_on='entrezgene', right_on='ID_geneid')
-        dn_prof = dn_prof[dn_prof['drug_rank'].notnull()][cols2save]
+        dn_prof = pd.merge(dn, l1k_prof, how='left', left_on='entrezgene', right_on='ID_geneid')
+        dn_prof = dn_prof[dn_prof[signame+'_drug_rank'].notnull()][cols2save]
 
         return up_prof, dn_prof
 
