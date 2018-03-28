@@ -36,3 +36,10 @@ all.gene.sym.l1k = as.character(l1k.unit$Name_GeneSymbol)
 all.gene.sym.up.dn = c(as.character(diffex.up.join.prof$Name_GeneSymbol),
                        as.character(diffex.dn.join.prof$Name_GeneSymbol))
 setdiff(all.gene.sym.l1k, all.gene.sym.up.dn)
+
+### This code checks the multi-signature parser. A histogram of any column
+### should look like l1k.unit above
+
+mul1k = read.csv("mul1k_unit_zscore.tsv", sep='\t')
+hist(mul1k$LINCSCP_13112, breaks=200)
+hist(mul1k$LINCSCP_33151, breaks=200)
