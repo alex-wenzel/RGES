@@ -13,7 +13,7 @@ table is required to have the following headers:
 
 import pandas as pd
 
-from RGES.RGES.L1KGCT import L1KGCT
+from RGES.L1KGCT import L1KGCT
 
 class DiffEx:
     """

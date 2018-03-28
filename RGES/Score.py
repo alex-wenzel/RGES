@@ -6,8 +6,8 @@ expression result's enrichment for a LINCS drug profile
 import numpy as np
 import pandas as pd
 
-from RGES.RGES.DiffEx import DiffEx
-from RGES.RGES.L1KGCT import L1KGCT, MultiL1KGCT
+from RGES.DiffEx import DiffEx
+from RGES.L1KGCT import L1KGCT, MultiL1KGCT
 
 def get_a(de_join_prof, total_de_genes, signame):
     """
