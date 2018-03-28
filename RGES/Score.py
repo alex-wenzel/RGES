@@ -6,10 +6,10 @@ expression result's enrichment for a LINCS drug profile
 import numpy as np
 import pandas as pd
 
-from DiffEx import DiffEx
-from L1KGCT import L1KGCT
+from RGES.RGES.DiffEx import DiffEx
+from RGES.RGES.L1KGCT import L1KGCT, MultiL1KGCT
 
-def get_a(de_join_prof, total_de_genes):
+def get_a(de_join_prof, total_de_genes, signame):
     """
     From the up or down regulated differential expression matrix
     joined with the drug profile, calculate the 'a' term according
@@ -19,6 +19,7 @@ def get_a(de_join_prof, total_de_genes):
                                     with profile drug rank
         total_de_genes (int): The total number of genes in input differential
                                 expression
+        signame (str): The name of the drug signature input
 
         returns (float): The term for 'a' according to the above reference
     """
@@ -26,10 +27,10 @@ def get_a(de_join_prof, total_de_genes):
     total_de_genes = float(total_de_genes)
     t = float(len(de_join_prof.index))
     for j, row in de_join_prof.iterrows():
-        terms.append((j/t) - (row['drug_rank']/total_de_genes))
+        terms.append((j/t) - (row[signame+'_drug_rank']/total_de_genes))
     return max(terms)
 
-def get_b(de_join_prof, total_de_genes):
+def get_b(de_join_prof, total_de_genes, signame):
     """
     From the up or down regulated differential expression matrix joined
     with the drug profile, calculate the 'b' term according to 
@@ -39,6 +40,7 @@ def get_b(de_join_prof, total_de_genes):
                                     with drug profile rank
         total_de_genes (int): The total number of genes in input differential
                                 expression
+        signame (str): The name of the drug signature input
 
         returns (float): The term for 'b' according to the above reference
     """
@@ -46,28 +48,28 @@ def get_b(de_join_prof, total_de_genes):
     total_de_genes = float(total_de_genes)
     t = float(len(de_join_prof.index))
     for j,row in de_join_prof.iterrows():
-        terms.append((row['drug_rank']/total_de_genes) - ((j-1)/t))
+        terms.append((row[sig_name+'_drug_rank']/total_de_genes) - ((j-1)/t))
     return max(terms)
 
-def score(de_path, lincs_path):
+def score(de, lincs_sigs, signame):
     """
     Computes the RGES score for the differential expression stored
     at de_path and the lincs drug profile stored at lincs_path
 
-        de_path (str): Location of a differential expression file
-        lincs_path (str): Location of a LINCS drug profile
+        de (DiffEx): Location of a differential expression file
+        lincs_sigs (MultiL1KGCT): Signature data
 
         returns (float): The RGES score
     """
-    de = DiffEx(de_path)
     total_genes = len(de)
-    prof = L1KGCT(lincs_path, normalized=True)
-    up, dn = de.get_profile_order(prof)
+    sig = lincs_sigs.data[['Name_GeneSymbol', 'ID_geneid', 
+                            signame, signame+'_drug_rank']]
+    up, dn = de.get_profile_order(sig, signame)
 
-    a_up = get_a(up, total_genes)
-    b_up = get_b(up, total_genes)
-    a_dn = get_a(dn, total_genes)
-    b_dn = get_b(dn, total_genes)
+    a_up = get_a(up, total_genes, signame)
+    b_up = get_b(up, total_genes, signame)
+    a_dn = get_a(dn, total_genes, signame)
+    b_dn = get_b(dn, total_genes, signame)
 
     es_up = a_up if a_up > b_up else -1*a_dn
     es_dn = a_dn if a_dn > b_dn else -1*b_dn
@@ -76,6 +78,8 @@ def score(de_path, lincs_path):
 
 if __name__ == "__main__":
     print("Score.py")
-    de_path = "testing/res.df.entrez.txt"
-    lincs_path = "testing/LINCSCP_1.gct"
-    print(score(de_path, lincs_path))
+    de = DiffEx("testing/res.df.entrez.txt")
+    lincs_path = "testing/CTPRES_100_concordant_sigs.gct"
+    lincs_sigs = MultiL1KGCT(lincs_path, normalized=True)
+    sig_name = list(lincs_sigs.metadata.keys())[0]
+    print(score(de, lincs_sigs, sig_name))
