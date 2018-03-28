@@ -71,8 +71,13 @@ def score(de, lincs_sigs, signame):
     a_dn = get_a(dn, total_genes, signame)
     b_dn = get_b(dn, total_genes, signame)
 
-    es_up = a_up if a_up > b_up else -1*a_dn
+    print("====================================")  #Debug
+    print(a_up, b_up, a_dn, b_dn)  #Debug
+
+    es_up = a_up if a_up > b_up else -1*b_up
     es_dn = a_dn if a_dn > b_dn else -1*b_dn
+    
+    print(es_up, es_dn)  #Debug
 
     return es_up - es_dn
 
