@@ -61,24 +61,19 @@ def score(de, lincs_sigs, signame):
 
         returns (float): The RGES score
     """
-    total_genes = len(de)
+    total_genes = len(lincs_sigs.data.index)
     sig = lincs_sigs.data[['Name_GeneSymbol', 'ID_geneid', 
                             signame, signame+'_drug_rank']]
     up, dn = de.get_profile_order(sig, signame)
-
+    
     a_up = get_a(up, total_genes, signame)
     b_up = get_b(up, total_genes, signame)
     a_dn = get_a(dn, total_genes, signame)
     b_dn = get_b(dn, total_genes, signame)
 
-    print("====================================")  #Debug
-    print(a_up, b_up, a_dn, b_dn)  #Debug
-
     es_up = a_up if a_up > b_up else -1*b_up
     es_dn = a_dn if a_dn > b_dn else -1*b_dn
     
-    print(es_up, es_dn)  #Debug
-
     return es_up - es_dn
 
 if __name__ == "__main__":
