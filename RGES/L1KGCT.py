@@ -111,7 +111,7 @@ class MultiL1KGCT:
             self.normalize()
 
     """
-    Laoding Data
+    Loading Data
     """
 
     def load(self):
@@ -134,6 +134,8 @@ class MultiL1KGCT:
         for i, sig in enumerate(sig_md['id']):
             self.metadata[sig] = {key: sig_md[key][i] for key in sig_md.keys()
                                         if key != "id"}
+            self.data = self.data.sort_values(by=sig)
+            self.data[sig+'_drug_rank'] = range(1, len(self.data)+1)
 
     """
     Normalize Data
@@ -147,19 +149,21 @@ class MultiL1KGCT:
 
             returns: None
         """
+        no_change = lambda x: x
         zscore = lambda x: (x-x.mean())/x.std(ddof=0)
-        col_d = {sig: zscore for sig in self.metadata.keys()}
+        norm = lambda x: 6 if x>3 else (0 if x<-3 else x+3)
+
+        col_d = {c: zscore if c in self.metadata.keys() else no_change for c in list(self.data)}
         self.data = self.data.transform(col_d)
 
-        norm = lambda x: 6 if x>3 else (0 if x<-3 else x+3)
-        col_d = {sig: norm for sig in self.metadata.keys()}
+        col_d = {c: norm if c in self.metadata.keys() else no_change for c in list(self.data)}
         self.data = self.data.transform(col_d)
 
 if __name__ == "__main__":
     DIR = "/scratch/alexw/l1k/"    
 
-    l = L1KGCT("testing/LINCSCP_1.gct", normalized=True)
-    l.data.to_csv(DIR+"l1k_unit_zscore.tsv", sep='\t', index=False, na_rep="NA")
+    #l = L1KGCT("testing/LINCSCP_1.gct", normalized=True)
+    #l.data.to_csv(DIR+"l1k_unit_zscore.tsv", sep='\t', index=False, na_rep="NA")
 
     ml = MultiL1KGCT("testing/CTPRES_100_concordant_sigs.gct", normalized=True)
     ml.data.to_csv(DIR+"mul1k_unit_zscore.tsv", sep='\t', index=False, na_rep="NA")
