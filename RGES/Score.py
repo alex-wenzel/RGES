@@ -48,7 +48,7 @@ def get_b(de_join_prof, total_de_genes, signame):
     total_de_genes = float(total_de_genes)
     t = float(len(de_join_prof.index))
     for j,row in de_join_prof.iterrows():
-        terms.append((row[sig_name+'_drug_rank']/total_de_genes) - ((j-1)/t))
+        terms.append((row[signame+'_drug_rank']/total_de_genes) - ((j-1)/t))
     return max(terms)
 
 def score(de, lincs_sigs, signame):
