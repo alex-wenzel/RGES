@@ -3,8 +3,10 @@ This script implements methods for scoring a differential
 expression result's enrichment for a LINCS drug profile
 """
 
+import humanfriendly as hf
 import numpy as np
 import pandas as pd
+import time
 
 from RGES.DiffEx import DiffEx
 from RGES.L1KGCT import L1KGCT, MultiL1KGCT
@@ -81,5 +83,15 @@ if __name__ == "__main__":
     de = DiffEx("testing/res.df.entrez.txt")
     lincs_path = "testing/CTPRES_100_concordant_sigs.gct"
     lincs_sigs = MultiL1KGCT(lincs_path, normalized=True)
-    sig_name = list(lincs_sigs.metadata.keys())[0]
-    print(score(de, lincs_sigs, sig_name))
+    times = []
+    for signame in lincs_sigs.metadata.keys():
+        t0 = time.time()
+        score(de, lincs_sigs, signame)
+        t1 = time.time()
+        times.append(t1-t0)
+    LINCS_L = 68960.0
+    print("Mean time per score: "+hf.format_timespan(np.mean(times)))
+    print("Max score time: "+hf.format_timespan(max(times)))
+    print("Min score time: "+hf.format_timespan(min(times)))
+    time_for_lincs = np.mean(times)*LINCS_L
+    print("Would score all of iLINCS ("+str(LINCS_L)+") on this signature in "+str(hf.format_timespan(time_for_lincs)))
