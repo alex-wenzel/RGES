@@ -49,7 +49,7 @@ def get_b(de_join_prof, total_de_genes, signame):
     terms = []
     total_de_genes = float(total_de_genes)
     t = float(len(de_join_prof.index))
-    for j,row in de_join_prof.iterrows():
+    for j, row in de_join_prof.iterrows():
         terms.append((row[signame]/total_de_genes) - ((j-1)/t))
     return max(terms)
 
@@ -92,7 +92,7 @@ if __name__ == "__main__":
         t1 = time.time()
         #times.append(t1-t0)
         #print(t1-t0)
-        print(s)
+        #print(s)
         #break
     #LINCS_L = 68960.0
     #print("Mean time per score: "+hf.format_timespan(np.mean(times)))
