@@ -13,7 +13,7 @@ table is required to have the following headers:
 
 import pandas as pd
 
-from RGES.L1KGCT import L1KGCT
+from RGES.L1KGCT import L1KGCTX
 
 class DiffEx:
     """
@@ -65,16 +65,18 @@ class DiffEx:
 
             returns ((pd.DataFrame, pd.DataFrame)): 
         """
-        cols2save = ['entrezgene', 'log2FoldChange', 'Name_GeneSymbol', 
-                        signame, signame+'_drug_rank']
+        cols2save = ['entrezgene', 'log2FoldChange', signame]
 
         up = self.get_up_genes()
         dn = self.get_down_genes()
-        up_prof = pd.merge(up, l1k_prof, how='left', left_on='entrezgene', right_on='ID_geneid')
-        up_prof = up_prof[up_prof[signame+'_drug_rank'].notnull()][cols2save]
 
-        dn_prof = pd.merge(dn, l1k_prof, how='left', left_on='entrezgene', right_on='ID_geneid')
-        dn_prof = dn_prof[dn_prof[signame+'_drug_rank'].notnull()][cols2save]
+        up_prof = pd.merge(up, l1k_prof, how='left', left_on='entrezgene', right_index=True)
+        up_prof = up_prof[up_prof[signame].notnull()][cols2save]
+        up_prof.index = list(range(len(up_prof.index)))
+
+        dn_prof = pd.merge(dn, l1k_prof, how='left', left_on='entrezgene', right_index=True)
+        dn_prof = dn_prof[dn_prof[signame].notnull()][cols2save]
+        dn_prof.index = list(range(len(dn_prof.index)))
 
         return up_prof, dn_prof
 
@@ -89,13 +91,6 @@ if __name__ == "__main__":
     DIR = "/scratch/alexw/l1k/"
 
     de = DiffEx("testing/res.df.entrez.txt")
-    
-    up = de.get_up_genes()
-    dn = de.get_down_genes()
-    up.to_csv(DIR+"DiffEx_unit_upreg.tsv", sep='\t', index=False, na_rep="NA")
-    dn.to_csv(DIR+"DiffEx_unit_dnreg.tsv", sep='\t', index=False, na_rep="NA")
-
-    l = L1KGCT("testing/LINCSCP_1.gct", normalized=True)
-    up_prof, dn_prof = de.get_profile_order(l)
-    up_prof.to_csv(DIR+"DiffEx+profile_upreg.tsv", sep='\t', index=False, na_rep="NA")
-    dn_prof.to_csv(DIR+"DiffEx+profile_dnreg.tsv", sep='\t', index=False, na_rep="NA")
+    gctx = L1KGCTX("/scratch/alexw/l1k/LINCS_FULL_GEO/GSE70138_2017-03-06_landmarks_ranked_n118050x972.gctx")
+    sig1 = list(gctx.data)[0]
+    up_prof, dn_prof = de.get_profile_order(gctx.data, sig1)
