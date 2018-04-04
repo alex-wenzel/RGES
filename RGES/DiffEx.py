@@ -72,11 +72,11 @@ class DiffEx:
 
         up_prof = pd.merge(up, l1k_prof, how='left', left_on='entrezgene', right_index=True)
         up_prof = up_prof[up_prof[signame].notnull()][cols2save]
-        up_prof.index = list(range(len(up_prof.index)))
+        up_prof.index = list(range(1, len(up_prof.index)+1))
 
         dn_prof = pd.merge(dn, l1k_prof, how='left', left_on='entrezgene', right_index=True)
         dn_prof = dn_prof[dn_prof[signame].notnull()][cols2save]
-        dn_prof.index = list(range(len(dn_prof.index)))
+        dn_prof.index = list(range(1, len(dn_prof.index)+1))
 
         return up_prof, dn_prof
 
@@ -94,3 +94,5 @@ if __name__ == "__main__":
     gctx = L1KGCTX("/scratch/alexw/l1k/LINCS_FULL_GEO/GSE70138_2017-03-06_landmarks_ranked_n118050x972.gctx")
     sig1 = list(gctx.data)[0]
     up_prof, dn_prof = de.get_profile_order(gctx.data, sig1)
+    print(up_prof)
+    print(dn_prof)
