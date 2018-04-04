@@ -72,10 +72,12 @@ class DiffEx:
 
         up_prof = pd.merge(up, l1k_prof, how='left', left_on='entrezgene', right_index=True)
         up_prof = up_prof[up_prof[signame].notnull()][cols2save]
+        up_prof = up_prof.iloc[::-1]
         up_prof.index = list(range(1, len(up_prof.index)+1))
 
         dn_prof = pd.merge(dn, l1k_prof, how='left', left_on='entrezgene', right_index=True)
         dn_prof = dn_prof[dn_prof[signame].notnull()][cols2save]
+        dn_prof = dn_prof.iloc[::-1]
         dn_prof.index = list(range(1, len(dn_prof.index)+1))
 
         return up_prof, dn_prof
