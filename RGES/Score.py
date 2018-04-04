@@ -9,7 +9,7 @@ import pandas as pd
 import time
 
 from RGES.DiffEx import DiffEx
-from RGES.L1KGCT import L1KGCT, MultiL1KGCT
+from RGES.L1KGCT import L1KGCTX, MultiL1KGCT
 
 def get_a(de_join_prof, total_de_genes, signame):
     """
@@ -29,7 +29,7 @@ def get_a(de_join_prof, total_de_genes, signame):
     total_de_genes = float(total_de_genes)
     t = float(len(de_join_prof.index))
     for j, row in de_join_prof.iterrows():
-        terms.append((j/t) - (row[signame+'_drug_rank']/total_de_genes))
+        terms.append((j/t) - (row[signame]/total_de_genes))
     return max(terms)
 
 def get_b(de_join_prof, total_de_genes, signame):
@@ -50,7 +50,7 @@ def get_b(de_join_prof, total_de_genes, signame):
     total_de_genes = float(total_de_genes)
     t = float(len(de_join_prof.index))
     for j,row in de_join_prof.iterrows():
-        terms.append((row[signame+'_drug_rank']/total_de_genes) - ((j-1)/t))
+        terms.append((row[signame]/total_de_genes) - ((j-1)/t))
     return max(terms)
 
 def score(de, lincs_sigs, signame):
@@ -64,8 +64,7 @@ def score(de, lincs_sigs, signame):
         returns (float): The RGES score
     """
     total_genes = len(lincs_sigs.data.index)
-    sig = lincs_sigs.data[['Name_GeneSymbol', 'ID_geneid', 
-                            signame, signame+'_drug_rank']]
+    sig = lincs_sigs.data[[signame]]
     up, dn = de.get_profile_order(sig, signame)
     
     a_up = get_a(up, total_genes, signame)
@@ -75,23 +74,29 @@ def score(de, lincs_sigs, signame):
 
     es_up = a_up if a_up > b_up else -1*b_up
     es_dn = a_dn if a_dn > b_dn else -1*b_dn
-    
+
     return es_up - es_dn
 
 if __name__ == "__main__":
     print("Score.py")
     de = DiffEx("testing/res.df.entrez.txt")
-    lincs_path = "testing/CTPRES_100_concordant_sigs.gct"
-    lincs_sigs = MultiL1KGCT(lincs_path, normalized=True)
-    times = []
-    for signame in lincs_sigs.metadata.keys():
+    #lincs_path = "testing/CTPRES_100_concordant_sigs.gct"
+    #lincs_sigs = MultiL1KGCT(lincs_path, normalized=True)
+    lincs_path = "/scratch/alexw/l1k/LINCS_FULL_GEO/GSE70138_2017-03-06_landmarks_ranked_n118050x972.gctx"
+    lincs_sigs = L1KGCTX(lincs_path)
+    #times = []
+    #for signame in lincs_sigs.metadata.keys():
+    for signame in list(lincs_sigs.data):
         t0 = time.time()
-        score(de, lincs_sigs, signame)
+        s = score(de, lincs_sigs, signame)
         t1 = time.time()
-        times.append(t1-t0)
-    LINCS_L = 68960.0
-    print("Mean time per score: "+hf.format_timespan(np.mean(times)))
-    print("Max score time: "+hf.format_timespan(max(times)))
-    print("Min score time: "+hf.format_timespan(min(times)))
-    time_for_lincs = np.mean(times)*LINCS_L
-    print("Would score all of iLINCS ("+str(LINCS_L)+") on this signature in "+str(hf.format_timespan(time_for_lincs)))
+        #times.append(t1-t0)
+        #print(t1-t0)
+        print(s)
+        #break
+    #LINCS_L = 68960.0
+    #print("Mean time per score: "+hf.format_timespan(np.mean(times)))
+    #print("Max score time: "+hf.format_timespan(max(times)))
+    #print("Min score time: "+hf.format_timespan(min(times)))
+    #time_for_lincs = np.mean(times)*LINCS_L
+    #print("Would score all of iLINCS ("+str(LINCS_L)+") on this signature in "+str(hf.format_timespan(time_for_lincs)))
