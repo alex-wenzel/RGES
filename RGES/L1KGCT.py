@@ -123,9 +123,16 @@ class L1KGCTX:
         """
         self.data = GEX.parse(self.path).data_df
 
+        ##Dealing with cmapPy data type instability:
+        rows = list(map(lambda x: x[2:-1], list(self.data.index)))
+        self.data.index = rows
+        columns = list(map(lambda x: x[2:-1], list(self.data)))
+        self.data.columns = columns
+
 if __name__ == "__main__":
     DIR = "/scratch/alexw/l1k/"    
 
     lincs_ranked_path = "/scratch/alexw/l1k/LINCS_FULL_GEO/GSE70138_2017-03-06_landmarks_ranked_n118050x972.gctx"
     gctx = L1KGCTX(lincs_ranked_path)
     print(gctx.data)
+    print(gctx.data.index.dtype)
