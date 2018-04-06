@@ -29,8 +29,11 @@ class DiffEx:
             returns: None
         """
         self.data = pd.read_csv(path, sep=sep)
+        #self.data = self.data.sort_values(by=['log2FoldChange'], ascending=False)
+        #self.data['phen_rank'] = list(range(1, len(self.data)+1))
         self.data['entrezgene'] = self.data['entrezgene'].astype(str)
         self.data['entrezgene'] = self.data['entrezgene'].apply(lambda x: x[:-2])
+        #print(self.data[['log2FoldChange', 'phen_rank']])  #Debug
 
     """
     Accession
@@ -43,7 +46,7 @@ class DiffEx:
             returns (pd.DataFrame): Upregulated genes in self.data
         """
         up_gene_rows = self.data.ix[self.data['log2FoldChange']>0]
-        ug_rows_sorted = up_gene_rows.sort_values(by=['log2FoldChange'])
+        ug_rows_sorted = up_gene_rows.sort_values(by=['log2FoldChange'], ascending=False)
         return ug_rows_sorted[['entrezgene', 'log2FoldChange']]  #return id because some symbols missing
 
     def get_down_genes(self):
@@ -72,14 +75,14 @@ class DiffEx:
 
         up_prof = pd.merge(up, l1k_prof, how='left', left_on='entrezgene', right_index=True)
         up_prof = up_prof[up_prof[signame].notnull()][cols2save]
-        up_prof = up_prof.iloc[::-1]
-        up_prof = up_prof.drop_duplicates()
+        up_prof = up_prof.sort_values(by=signame, ascending=True)
+        up_prof = up_prof.drop_duplicates(subset=["entrezgene"])
         up_prof.index = list(range(1, len(up_prof.index)+1))
 
         dn_prof = pd.merge(dn, l1k_prof, how='left', left_on='entrezgene', right_index=True)
         dn_prof = dn_prof[dn_prof[signame].notnull()][cols2save]
-        dn_prof = dn_prof.iloc[::-1]
-        dn_prof = dn_prof.drop_duplicates()
+        dn_prof = dn_prof.sort_values(by=signame, ascending=True)
+        dn_prof = dn_prof.drop_duplicates(subset=["entrezgene"])
         dn_prof.index = list(range(1, len(dn_prof.index)+1))
 
         return up_prof, dn_prof

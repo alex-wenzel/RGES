@@ -3,7 +3,7 @@ This script implements methods for scoring a differential
 expression result's enrichment for a LINCS drug profile
 """
 
-import humanfriendly as hf
+#import humanfriendly as hf
 import numpy as np
 import pandas as pd
 import time
@@ -28,6 +28,7 @@ def get_a(de_join_prof, total_de_genes, signame):
     terms = []
     total_de_genes = float(total_de_genes)
     t = float(len(de_join_prof.index))
+    #t = 1417.0  #Debug
     for j, row in de_join_prof.iterrows():
         terms.append((j/t) - (row[signame]/total_de_genes))
     return max(terms)
@@ -49,6 +50,7 @@ def get_b(de_join_prof, total_de_genes, signame):
     terms = []
     total_de_genes = float(total_de_genes)
     t = float(len(de_join_prof.index))
+    #t = 1417.0  #Debug
     for j, row in de_join_prof.iterrows():
         terms.append((row[signame]/total_de_genes) - ((j-1)/t))
     return max(terms)
@@ -65,6 +67,8 @@ def score(de, lincs_sigs, signame):
     """
     total_genes = len(lincs_sigs.data.index)
     sig = lincs_sigs.data[[signame]]
+    sig = sig.sort_values(by=signame, ascending=False)
+    sig = sig.rank(method='first', ascending=False)
     up, dn = de.get_profile_order(sig, signame)
     
     a_up = get_a(up, total_genes, signame)
