@@ -46,8 +46,7 @@ class DiffEx:
             returns (pd.DataFrame): Upregulated genes in self.data
         """
         up_gene_rows = self.data.ix[self.data['log2FoldChange']>0]
-        ug_rows_sorted = up_gene_rows.sort_values(by=['log2FoldChange'], ascending=False)
-        return ug_rows_sorted[['entrezgene', 'log2FoldChange']]  #return id because some symbols missing
+        return up_gene_rows[['entrezgene', 'log2FoldChange']]  #return id because some symbols missing
 
     def get_down_genes(self):
         """
@@ -56,8 +55,7 @@ class DiffEx:
             returns (pd.DataFrame): Downregulated genes in self.data
         """
         dn_gene_rows = self.data.ix[self.data['log2FoldChange']<0]
-        dg_rows_sorted = dn_gene_rows.sort_values(by=['log2FoldChange'], ascending=False)
-        return dg_rows_sorted[['entrezgene', 'log2FoldChange']]  #return id because some symbols missing
+        return dn_gene_rows[['entrezgene', 'log2FoldChange']]  #return id because some symbols missing
 
     def get_profile_order(self, l1k_prof, signame):
         """
