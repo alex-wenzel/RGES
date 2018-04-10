@@ -18,17 +18,15 @@ from RGES.Score import score
 PHENOTYPE_SIGNATURE_PATH = "/mnt/oncogxA/Alex/l1k/DEG_SC_5um_entrezgene.txt"
 
 #DRUG_PROFILE_PATH = "/mnt/oncogxA/Alex/l1k/10x_ilincs_sigs_top500_ranked_n500x978.gctx"
-DRUG_PROFILE_PATH = "/mnt/oncogxA/Alex/l1k/LINCS_FULL_GEO_RANKED/GSE70138_2017-03-06_landmarks_ranked_n118050x972.gctx"
-
-#SCORES_PATH = "LINCS_top500_scores.json"
-SCORES_PATH = "/mnt/oncogxA/Alex/l1k/LINCS_FULL_GEO_RANKED/LINCS_landmarks_python_scores.json"
+#DRUG_PROFILE_PATH = "/mnt/oncogxA/Alex/l1k/LINCS_FULL_GEO_RANKED/GSE70138_2017-03-06_landmarks_ranked_n118050x972.gctx"
+DRUG_PROFILE_PATH = "/mnt/oncogxA/Alex/l1k/LINCS_CGS/GSE106127_CGS_ranked_n33839x978.gctx"
 
 #OUTPATH = "ilincs_top500_permutations.json"
-OUTPATH = "GSE70138_perms.json"
+#OUTPATH = "GSE70138_perms.json"
+OUTPATH = "GSE106127_perms.json"
 
 DE = DiffEx(PHENOTYPE_SIGNATURE_PATH)
 LINCS = L1KGCTX(DRUG_PROFILE_PATH)
-TRUE_SCORES = json.loads(open(SCORES_PATH).read())
 
 merge_l2fc = lambda x: -1.0*x['log2fc.y'] if not np.isnan(x['log2fc.y']) else x['log2FoldChange']
 DE.data['log2FoldChange'] = DE.data.apply(merge_l2fc, axis=1)
